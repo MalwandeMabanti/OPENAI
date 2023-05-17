@@ -1,0 +1,3 @@
+﻿@using OPENAI
+@using OPENAI.Models
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
