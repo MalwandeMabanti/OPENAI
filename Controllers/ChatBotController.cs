@@ -63,15 +63,10 @@ namespace OPENAI.Controllers
         [HttpGet]
         public IActionResult Get(DataSourceLoadOptions loadOptions)
         {
-            var getChatLogs = this.GetAll();
+            var getChatLogs = _chatBotService.GetAll();
 
             return this.Json(DataSourceLoader.Load(getChatLogs, loadOptions));
 
-        }
-
-        public List<ChatLog> GetAll()
-        {
-            return _context.Set<ChatLog>().ToList();
         }
 
         public async Task<HttpResponseMessage> ChatBotAsync(string input) 
