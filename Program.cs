@@ -1,3 +1,7 @@
+using OPENAI.Data;
+
+using Microsoft.EntityFrameworkCore;
+
 namespace OPENAI
 {
     public class Program
@@ -6,7 +10,13 @@ namespace OPENAI
         {
             var builder = WebApplication.CreateBuilder(args);
 
+
+            var configBuilder = new ConfigurationBuilder().AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+            var configuration = configBuilder.Build();
+
             // Add services to the container.
+            builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+
             builder.Services.AddControllersWithViews().AddJsonOptions(options => options.JsonSerializerOptions.PropertyNamingPolicy = null);
 
             var app = builder.Build();
@@ -20,6 +30,7 @@ namespace OPENAI
             }
 
             app.UseHttpsRedirection();
+
             app.UseStaticFiles();
 
             app.UseRouting();

@@ -6,30 +6,60 @@ using System.Text;
 using System.Web;
 using System.Text.Json;
 using JsonSerializer = System.Text.Json.JsonSerializer;
+using OPENAI.Data;
 
 namespace OPENAI.Controllers
 {
+    
     public class ChatBotController : Controller
     {
+        private readonly ApplicationDbContext _context;
+        public ChatBotController(ApplicationDbContext context)
+        {
+            _context = context;
+        }
+
+
         public IActionResult Index()
         {
-
-            //await ChatBotAsync();
             return View();
         }
 
 
         [HttpPost]
-        public async Task<IActionResult> Create(ChatBotUserInput model)
+        public async Task<IActionResult> Index(ChatBotRootObject model)
         {
+            HttpResponseMessage response = await ChatBotAsync(model.Input);
 
-            await ChatBotAsync(model.Input);
-            return View(model);
+            if (response.IsSuccessStatusCode)
+            {
+                // Read and deserialize the response
+                var responseJson = await response.Content.ReadAsStringAsync();
+                var result = JsonSerializer.Deserialize<ChatBotRootObject>(responseJson);
+
+                var chatLog = new ChatLog
+                {
+                    Input = model.Input,
+                    Content = result.choices[0].message.content
+                };
+
+                this.Add(chatLog);
+
+                Console.WriteLine(result.choices[0].message.content.ToString());
+
+                return View(result);
+            }
+
+            return View();
         }
 
+        public void Add(ChatLog entity)
+        {
+            _context.Set<ChatLog>().Add(entity);
+            _context.SaveChanges();
+        }
 
-
-        public async Task ChatBotAsync(string input) 
+        public async Task<HttpResponseMessage> ChatBotAsync(string input) 
         {
             HttpClient httpClient = new HttpClient();
 
@@ -50,24 +80,7 @@ namespace OPENAI.Controllers
             var json = JsonSerializer.Serialize(data);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            // Make a POST request to the OpenAI API
-            HttpResponseMessage response = await httpClient.PostAsync("https://api.openai.com/v1/chat/completions", content);
-
-            // Ensure the request was successful
-            if (response.IsSuccessStatusCode)
-            {
-                // Read and deserialize the response
-                var responseJson = await response.Content.ReadAsStringAsync();
-                var result = JsonSerializer.Deserialize<ChatBotRootObject>(responseJson);
-
-                // Display the result
-                Console.WriteLine(result.choices[0].message.content.ToString());
-                
-            }
-            else
-            {
-                Console.WriteLine($"Error: {response.StatusCode}");
-            }
+            return await httpClient.PostAsync("https://api.openai.com/v1/chat/completions", content);
         }
     }
 }
