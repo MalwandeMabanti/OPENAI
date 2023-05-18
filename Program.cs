@@ -1,6 +1,8 @@
 using OPENAI.Data;
 
 using Microsoft.EntityFrameworkCore;
+using OPENAI.Interfaces;
+using OPENAI.Services;
 
 namespace OPENAI
 {
@@ -18,6 +20,8 @@ namespace OPENAI
             builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
 
             builder.Services.AddControllersWithViews().AddJsonOptions(options => options.JsonSerializerOptions.PropertyNamingPolicy = null);
+
+            builder.Services.AddScoped<IChatBotService, ChatBotService>();
 
             var app = builder.Build();
 

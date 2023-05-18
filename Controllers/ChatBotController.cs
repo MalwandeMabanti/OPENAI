@@ -9,6 +9,7 @@ using JsonSerializer = System.Text.Json.JsonSerializer;
 using OPENAI.Data;
 using DevExtreme.AspNet.Data;
 using DevExtreme.AspNet.Mvc;
+using OPENAI.Interfaces;
 
 namespace OPENAI.Controllers
 {
@@ -16,9 +17,12 @@ namespace OPENAI.Controllers
     public class ChatBotController : Controller
     {
         private readonly ApplicationDbContext _context;
-        public ChatBotController(ApplicationDbContext context)
+        private readonly IChatBotService _chatBotService;
+
+        public ChatBotController(ApplicationDbContext context, IChatBotService chatBotService)
         {
             _context = context;
+            _chatBotService = chatBotService;
         }
 
 
@@ -45,7 +49,7 @@ namespace OPENAI.Controllers
                     Content = result.choices[0].message.content
                 };
 
-                this.Add(chatLog);
+                _chatBotService.Add(chatLog);
 
                 Console.WriteLine(result.choices[0].message.content.ToString());
 
@@ -65,18 +69,9 @@ namespace OPENAI.Controllers
 
         }
 
-
-
-
         public List<ChatLog> GetAll()
         {
             return _context.Set<ChatLog>().ToList();
-        }
-
-        public void Add(ChatLog entity)
-        {
-            _context.Set<ChatLog>().Add(entity);
-            _context.SaveChanges();
         }
 
         public async Task<HttpResponseMessage> ChatBotAsync(string input) 
