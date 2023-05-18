@@ -7,6 +7,8 @@ using System.Web;
 using System.Text.Json;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 using OPENAI.Data;
+using DevExtreme.AspNet.Data;
+using DevExtreme.AspNet.Mvc;
 
 namespace OPENAI.Controllers
 {
@@ -51,6 +53,24 @@ namespace OPENAI.Controllers
             }
 
             return View();
+        }
+
+
+        [HttpGet]
+        public IActionResult Get(DataSourceLoadOptions loadOptions)
+        {
+            var getChatLogs = this.GetAll();
+
+            return this.Json(DataSourceLoader.Load(getChatLogs, loadOptions));
+
+        }
+
+
+
+
+        public List<ChatLog> GetAll()
+        {
+            return _context.Set<ChatLog>().ToList();
         }
 
         public void Add(ChatLog entity)

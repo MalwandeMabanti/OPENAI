@@ -29,4 +29,41 @@
 }
 
 
-@*Model != null && Model.choices != null && Model.choices.Count > 0 && Model.choices[0].message != null && Model.choices[0].message.content != null*@
+@(
+Html.DevExtreme().DataGrid<ChatLog>()
+    .ID("gridContainer")
+    .ShowBorders(true)
+    .Editing(editing =>
+    {
+        editing.Mode(GridEditMode.Form);
+        editing.UseIcons(true);
+        editing.RefreshMode(GridEditRefreshMode.Reshape);
+        editing.AllowUpdating(false);
+        editing.AllowDeleting(true);
+        editing.AllowAdding(false);
+    }
+    )
+
+    .Toolbar(toolbar =>
+    {
+        toolbar.Items(items =>
+        {
+            items.Add()
+                .Name("addRowButton")
+                .ShowText(ToolbarItemShowTextMode.Always);
+        });
+    })
+
+    .Columns(columns =>
+    {
+        columns.AddFor(_ => _.Input);
+        columns.AddFor(_ => _.Content);
+    })
+
+    .DataSource(_ => _.Mvc()
+    .Controller("ChatBot")
+    .LoadAction("Get")
+    .DeleteAction("Delete")
+    .Key("Id")
+    )
+)
