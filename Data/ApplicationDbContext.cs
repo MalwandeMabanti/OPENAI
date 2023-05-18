@@ -11,5 +11,7 @@ namespace OPENAI.Data
         }
 
         public DbSet<ChatLog> ChatLog { get; set; }
+
+        public DbSet<ImageLog> ImageLog { get; set; }
     }
 }

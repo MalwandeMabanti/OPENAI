@@ -23,6 +23,10 @@ namespace OPENAI
 
             builder.Services.AddScoped<IChatBotService, ChatBotService>();
 
+            builder.Services.AddScoped<IImageGenerationService, ImageGenerationService>();
+
+
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.

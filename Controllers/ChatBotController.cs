@@ -16,12 +16,10 @@ namespace OPENAI.Controllers
     
     public class ChatBotController : Controller
     {
-        private readonly ApplicationDbContext _context;
         private readonly IChatBotService _chatBotService;
 
-        public ChatBotController(ApplicationDbContext context, IChatBotService chatBotService)
+        public ChatBotController(IChatBotService chatBotService)
         {
-            _context = context;
             _chatBotService = chatBotService;
         }
 

@@ -1,10 +1,10 @@
-﻿@model ImageGenerationUserInput
+﻿@model ImageGenerationRootobject
 
 
 
 <h1>Enter an image</h1>
 
-<form method="post" asp-action="Create" asp-controller="ImageGeneration">
+<form method="post" asp-action="Index" asp-controller="ImageGeneration">
     <div class="form-group">
         <label asp-for="Input">Input</label>
         <input type="text" asp-for="Input" class="form-control" required id="Input" placeholder="Enter an image">
@@ -13,3 +13,49 @@
 
     <button type="submit" class="btn btn-primary">Submit</button>
 </form>
+
+@if (Model != null && Model.data != null && Model.data[0].url != null)
+{
+    <div>
+        <img src="@Model.data[0].url" alt="@Model.Input">
+    </div>
+}
+
+@(
+Html.DevExtreme().DataGrid<ImageLog>()
+    .ID("gridContainer")
+    .ShowBorders(true)
+    .Editing(editing =>
+    {
+        editing.Mode(GridEditMode.Form);
+        editing.UseIcons(true);
+        editing.RefreshMode(GridEditRefreshMode.Reshape);
+        editing.AllowUpdating(false);
+        editing.AllowDeleting(true);
+        editing.AllowAdding(false);
+    }
+    )
+
+    .Toolbar(toolbar =>
+    {
+        toolbar.Items(items =>
+        {
+            items.Add()
+                .Name("addRowButton")
+                .ShowText(ToolbarItemShowTextMode.Always);
+        });
+    })
+
+    .Columns(columns =>
+    {
+        columns.AddFor(_ => _.Input);
+        columns.AddFor(_ => _.Link);
+    })
+
+    .DataSource(_ => _.Mvc()
+    .Controller("ImageGeneration")
+    .LoadAction("Get")
+    .DeleteAction("Delete")
+    .Key("Id")
+    )
+)

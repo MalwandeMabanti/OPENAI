@@ -1,7 +1,7 @@
 ﻿namespace OPENAI;
 public class ImageGenerationRootobject
 {
-    public int created { get; set; }
+    public string Input { get; set; }
     public Datum[] data { get; set; }
 }
 

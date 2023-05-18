@@ -1,5 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using DevExtreme.AspNet.Data;
+using DevExtreme.AspNet.Mvc;
+using Microsoft.AspNetCore.Mvc;
+using OPENAI.Interfaces;
 using OPENAI.Models;
+using OPENAI.Services;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
@@ -8,6 +12,12 @@ namespace OPENAI.Controllers
 {
     public class ImageGenerationController : Controller
     {
+        private readonly IImageGenerationService _imageGenerationService;
+
+        public ImageGenerationController(IImageGenerationService imageGenerationService) 
+        {
+            _imageGenerationService = imageGenerationService;
+        }
         public async Task<IActionResult> Index()
         {
             
@@ -15,14 +25,44 @@ namespace OPENAI.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(ImageGenerationUserInput model)
+        public async Task<IActionResult> Index(ChatBotRootObject model) 
         {
+            HttpResponseMessage response = await ImageGenerationAsync(model.Input);
 
-            await ImageGenerationAsync(model.Input);
+            if (response.IsSuccessStatusCode)
+            {
+                // Read and deserialize the response
+                var responseJson = await response.Content.ReadAsStringAsync();
+                var result = JsonSerializer.Deserialize<ImageGenerationRootobject>(responseJson);
+
+                var imageLog = new ImageLog
+                {
+                    Input = model.Input,
+                    Link = result.data[0].url
+                };
+
+                _imageGenerationService.Add(imageLog);
+
+                // Display the result
+                Console.WriteLine(result.data[0].url);
+
+                return View(result);
+
+            }
+
             return View(model);
         }
 
-        public async Task ImageGenerationAsync(string input) 
+        [HttpGet]
+        public IActionResult Get(DataSourceLoadOptions loadOptions)
+        {
+            var getImageLogs = _imageGenerationService.GetAll();
+
+            return this.Json(DataSourceLoader.Load(getImageLogs, loadOptions));
+
+        }
+
+        public async Task<HttpResponseMessage> ImageGenerationAsync(string input) 
         {
             HttpClient httpClient = new HttpClient();
 
@@ -42,23 +82,8 @@ namespace OPENAI.Controllers
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
             // Make a POST request to the OpenAI API
-            HttpResponseMessage response = await httpClient.PostAsync("https://api.openai.com/v1/images/generations", content);
+            return await httpClient.PostAsync("https://api.openai.com/v1/images/generations", content);
 
-            // Ensure the request was successful
-            if (response.IsSuccessStatusCode)
-            {
-                // Read and deserialize the response
-                var responseJson = await response.Content.ReadAsStringAsync();
-                var result = JsonSerializer.Deserialize<ImageGenerationRootobject>(responseJson);
-
-                // Display the result
-                Console.WriteLine(result.data[0].url);
-
-            }
-            else
-            {
-                Console.WriteLine($"Error: {response.StatusCode}");
-            }
         }
     }
 }
