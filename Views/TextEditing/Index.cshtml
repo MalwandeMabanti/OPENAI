@@ -1,7 +1,19 @@
-﻿@*
+﻿@model TextEditingUserInput
+
+@*
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
 @{
 }
 
-<h1>This is where you text edit</h1>
+<h1>Enter an edit</h1>
+
+<form method="post" asp-action="Create" asp-controller="TextEditing">
+    <div class="form-group">
+        <label asp-for="Input">Input</label>
+        <input type="text" asp-for="Input" class="form-control" required id="Input" placeholder="Send an edit">
+        <span asp-validation-for="Input"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
