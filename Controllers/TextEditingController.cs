@@ -28,7 +28,7 @@ namespace OPENAI.Controllers
             HttpClient httpClient = new HttpClient();
 
             // Set up the request headers
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "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");
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "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");
 
             // Set up the request body
             var data = new
