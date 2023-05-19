@@ -1,6 +1,9 @@
-﻿namespace OPENAI.Interfaces
+﻿using OPENAI.Models;
+using Product_Inventory_Management_System.Interface;
+
+namespace OPENAI.Interfaces
 {
-    public interface ITextEditingService
+    public interface ITextEditingService : IGenericService<TextLog>
     {
     }
 }
