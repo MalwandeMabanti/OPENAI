@@ -9,5 +9,7 @@ namespace OPENAI.Areas.Identity.Data;
 // Add profile data for application users by adding properties to the OPENAIUser class
 public class OPENAIUser : IdentityUser
 {
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
 }
 

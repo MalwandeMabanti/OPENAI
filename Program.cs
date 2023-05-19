@@ -3,6 +3,8 @@ using OPENAI.Data;
 using Microsoft.EntityFrameworkCore;
 using OPENAI.Interfaces;
 using OPENAI.Services;
+using OPENAI.Areas.Identity.Data;
+using Microsoft.AspNetCore.Identity;
 
 namespace OPENAI
 {
@@ -11,12 +13,22 @@ namespace OPENAI
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            var connectionString = builder.Configuration.GetConnectionString("AuthDbContextConnection") ?? throw new InvalidOperationException("Missing connection string");
 
 
             var configBuilder = new ConfigurationBuilder().AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
             var configuration = configBuilder.Build();
 
             // Add services to the container.
+
+            builder.Services.AddDbContext<AuthDbContext>(options => options.UseSqlServer(configuration.GetConnectionString(connectionString)));
+
+            builder.Services.AddDefaultIdentity<OPENAIUser>(options => options.SignIn.RequireConfirmedAccount = true)
+                .AddRoles<IdentityRole>()
+                .AddEntityFrameworkStores<AuthDbContext>();
+
+
+
             builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
 
             builder.Services.AddControllersWithViews().AddJsonOptions(options => options.JsonSerializerOptions.PropertyNamingPolicy = null);
@@ -52,6 +64,8 @@ namespace OPENAI
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
+
+            app.MapRazorPages();
 
             app.Run();
         }
