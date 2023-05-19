@@ -1,4 +1,4 @@
-﻿@model TextEditingUserInput
+﻿@model TextEditingRootobject
 
 @*
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -8,7 +8,7 @@
 
 <h1>Enter an edit</h1>
 
-<form method="post" asp-action="Create" asp-controller="TextEditing">
+<form method="post" asp-action="Index" asp-controller="TextEditing">
     <div class="form-group">
         <label asp-for="Input">Input</label>
         <input type="text" asp-for="Input" class="form-control" required id="Input" placeholder="Send an edit">
@@ -17,3 +17,51 @@
 
     <button type="submit" class="btn btn-primary">Submit</button>
 </form>
+
+
+@if (Model != null && Model.choices != null && Model.choices[0].text != null)
+{
+<div>
+    @Model.choices[0].text
+</div>
+}
+
+
+@(
+Html.DevExtreme().DataGrid<TextLog>()
+    .ID("gridContainer")
+    .ShowBorders(true)
+    .Editing(editing =>
+    {
+        editing.Mode(GridEditMode.Form);
+        editing.UseIcons(true);
+        editing.RefreshMode(GridEditRefreshMode.Reshape);
+        editing.AllowUpdating(false);
+        editing.AllowDeleting(true);
+        editing.AllowAdding(false);
+    }
+    )
+
+    .Toolbar(toolbar =>
+    {
+        toolbar.Items(items =>
+        {
+            items.Add()
+                .Name("addRowButton")
+                .ShowText(ToolbarItemShowTextMode.Always);
+        });
+    })
+
+    .Columns(columns =>
+    {
+        columns.AddFor(_ => _.Input);
+        columns.AddFor(_ => _.Text);
+    })
+
+    .DataSource(_ => _.Mvc()
+    .Controller("TextEditing")
+    .LoadAction("Get")
+    .DeleteAction("Delete")
+    .Key("Id")
+    )
+)

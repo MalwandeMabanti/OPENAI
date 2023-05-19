@@ -25,6 +25,8 @@ namespace OPENAI
 
             builder.Services.AddScoped<IImageGenerationService, ImageGenerationService>();
 
+            builder.Services.AddScoped<ITextEditingService, TextEditingService>();
+
 
 
             var app = builder.Build();
